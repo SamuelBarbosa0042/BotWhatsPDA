@@ -6,14 +6,14 @@ class Wellcome
         const option = parseInt(message.body);
         switch(option){
 
-            // suporte técnico
+            // Horas Extras
             case 1: {
-                await database.table('supports').update({ dialog: 'supporttech' }).where({ number: message.from });
+                await database.table('menu').update({ dialog: 'Menus' }).where({ number: message.from });
                 client.sendText(message.from, 'Selecione uma das opções:\n\n*1* - Sem conexão.\n*2* - Lentidão.\n*3* - Oscilação\n*4* - Voltar ao menu anterior.\n*0* - Encerrar atendimento.');
                 break;
             }
             
-            // Financeiro
+            // Nota PJ
             case 2: {
                 break;
             }
