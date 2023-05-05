@@ -10,4 +10,4 @@ const config = knex(knexfile[process.env.NODE_ENV])
 
 
 
-exports.default = config 
+module.exports = config 

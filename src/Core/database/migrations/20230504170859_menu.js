@@ -5,6 +5,7 @@
 exports.up = function (knex) {
     return knex.schema.createTable('pda_tb_menu', table => {
       table.increments('Codigo_Menu');
+      table.string('dialogo');
       table.string('Menu');
     });
   };

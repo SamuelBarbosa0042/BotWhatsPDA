@@ -2,6 +2,8 @@
 
 const libwts = require('./Core/wweb/Libwts.js')
 require('./Core/Events/client.js')
+require('./Core/Events/messages.js')
+
 
 //console.log(process.env)
 
@@ -12,9 +14,8 @@ require('./Core/Events/client.js')
 
 const Inicializador = 
 async () => {
-    console.log('start')
     await libwts.client.initialize();
-    console.log('end')
+ 
     }
  
 Inicializador()    

@@ -3,7 +3,7 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
-    return knex.schema.createTable('pda_tb_menu', table => {
+    return knex.schema.createTable('pda_tb_submenu', table => {
       table.increments('Codigo_SubMenu');
       table.string('Codigo_menu');
       table.string('Descricao_submenu');
