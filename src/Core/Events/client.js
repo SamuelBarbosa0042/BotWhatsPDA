@@ -12,7 +12,7 @@ client.on('qr', qr => {
 });
 
 client.on('ready', async () => {
-     client.sendMessage('5511991843099@c.us', "I'm alive");
+     client.sendMessage('5511991843099@c.us', "I am alive");
 //   require("../jobs")
  // automatedMessage('5511983808494@c.us', template, 1 * 60 * 1000);
 });
