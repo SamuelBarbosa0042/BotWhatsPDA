@@ -1,6 +1,6 @@
-import database from '~/database';
+const database = require('../Core/database/index.js')
 
-class Wellcome
+class Welcome
 {
     async execute(client, message) {
         const option = parseInt(message.body);
@@ -30,4 +30,4 @@ class Wellcome
         }
     }
 }
-export default new Wellcome();
+exports.default = new Welcome();

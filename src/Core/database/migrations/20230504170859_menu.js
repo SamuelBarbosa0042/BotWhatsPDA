@@ -4,8 +4,8 @@
  */
 exports.up = function (knex) {
     return knex.schema.createTable('pda_tb_menu', table => {
-      table.increments('Codigo_Mensagem');
-      table.string('Mensagem');
+      table.increments('Codigo_Menu');
+      table.string('Menu');
     });
   };
   
