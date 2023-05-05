@@ -42,7 +42,6 @@ client.on('message', async (message) => {
       
       const now = new Date();
       const tomorrow = addDays(valida.DataInicio,1);
-      console.log({now,tomorrow,valid: now < tomorrow })
 
     if(tomorrow < now){
         await database('pda_tb_interacao').where('numeroTelefone',message.from).delete()
@@ -50,8 +49,6 @@ client.on('message', async (message) => {
     }    
 
         
-    console.log(valida.DataInicio)
-
     const { default: { execute } } = require(`../../dialogs/${valida.dialogo}`);
     execute(message);
 
