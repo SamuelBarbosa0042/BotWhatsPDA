@@ -1,29 +1,35 @@
 const database = require('../Core/database/index.js')
+const template = require('./templates.js')
+
 
 class ponto
 {
     async execute(message) {
         const option = parseInt(message.body);
-        console.log({option})
+        
         switch(option){
 
             // adicionar hora
             case 1: {
                 await database.table('pda_tb_interacao').update({ dialogo: 'adicionarhora' }).where({ numeroTelefone: message.from });
-                await message.reply('responda no formato x');
-                //direcionar para dialogo de criação de ponto
+                await message.reply(template.ponto());
                 
+                console.log(template.ponto())    
 
                 break;
             }
             
             // excluir
             case 2: {
+                await database.table('pda_tb_interacao').update({dialogo : 'excluirhora'}).where({numeroTelefone : message.from});
+                await message.reply(template.excluir())
                 break;
             }
 
-            // editar
+            // ver as horas extras
             case 3: {
+                await database.table('pda_tb_interacao').update({ dialogo: 'verhoras' }).where({ numeroTelefone: message.from });
+                await message.reply('aperta uma tecla ai:')
                 break;
             }
 

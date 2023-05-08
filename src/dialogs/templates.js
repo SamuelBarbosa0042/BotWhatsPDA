@@ -2,6 +2,12 @@ class template{
     static menu(opcoes){
         return `Olá, eu sou \`\`\`Manuel\`\`\`, por favor selecione \n\n${opcoes.map(opcao => `*${opcao.Codigo_Menu}* - ${opcao.Menu}\n`)}`
     }
+    static ponto(){
+        return 'insire no formato, separando por asteriscos *\n\n  comentario*quantidade_de_horas*numero_chamado(card)*data(DD/MM/YYYY)\n\n exemplo : \n\ncomentario*2*3333*0805/2023'
+    }
+    static excluir(){
+        return 'Informe qual hora você deseja excluir'
+    }
 }
 
 

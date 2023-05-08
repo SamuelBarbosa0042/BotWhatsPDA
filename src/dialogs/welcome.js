@@ -9,7 +9,7 @@ class Welcome
             // Horas Extras
             case 1: {
                 await database.table('pda_tb_interacao').update({ dialogo: 'ponto' }).where({ numeroTelefone: message.from });
-                await message.reply('Selecione uma das opções:\n\n*1* - Cadastrar hora extra.\n*2* - excluir hora extra.\n*3* - editar hora extra\n*4* - Voltar ao menu anterior.\n*0* - Encerrar atendimento.');
+                await message.reply('Selecione uma das opções:\n\n*1* - Cadastrar hora extra.\n*2* - excluir hora extra.\n*3* - ver horas extras\n*4* - Voltar ao menu anterior.\n*0* - Encerrar atendimento.');
                     
                 break;
             }
@@ -22,6 +22,10 @@ class Welcome
             // Comercial
             case 3: {
                 break;
+            }
+            case 4: {
+                await database.table('pda_tb_interacao').update({ dialogo: 'welcome' }).where({ numeroTelefone: message.from });
+                await message.reply('Retornando...')
             }
 
             // Encerrar atendimento
