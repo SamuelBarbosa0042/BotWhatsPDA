@@ -1,7 +1,9 @@
 const { client } = require('../wweb/Libwts');
 const database = require('../database')
 const template = require('../../dialogs/templates')
-
+const { relatorio } = require('../../dialogs/relatorio')
+const ExcelJS = require('exceljs');
+const { MessageMedia } = require('whatsapp-web.js');
 
 
 client.on('message', async (message) => {
@@ -18,6 +20,50 @@ client.on('message', async (message) => {
             await client.sendMessage(message.from, 'Usuario cadastrado com sucesso')
             return
         }
+        
+        return
+
+    }
+
+    if(message.body == '/relatorio'){
+        //await message.reply('criando relatório')
+        
+        const remetente = message.from
+
+        const workbook = new ExcelJS.Workbook();
+
+        let relatorio = await database('pda_tb_hora')
+                                .join('pda_tb_usuario','pda_tb_hora.numeroTelefone','=','pda_tb_usuario.numero')
+                                .select('pda_tb_usuario.usuario','chamado','quantidade_horas','comentario','data')
+                                .where({numeroTelefone:remetente})
+                                .orderBy('data','asc')
+                                  
+        const sheet = workbook.addWorksheet('relatorio');
+        sheet.columns = [
+            {header:'Data',key:'data',width:15},
+            {header:'Nome', key :'Nome',width:15},
+            {header:'chamado', key :'chamado',width:12},
+            {header:'horas', key :'horas',width:5},
+            {header:'comentario', key :'comentario',width:30}
+        ]
+        //console.log(relatorio.length)
+        for(let i = 0;i<relatorio.length;i++){
+            const row  = [
+                relatorio[i].data,
+                relatorio[i].usuario,
+                relatorio[i].chamado,
+                relatorio[i].quantidade_horas,
+                relatorio[i].comentario
+            ]
+            sheet.addRow(row)
+        }
+
+        await workbook.xlsx.writeFile(`c:/Estudos/Relatorio_horas_${message.from}_${message.timestamp}.xlsx`)
+
+        const media = MessageMedia.fromFilePath(`c:/Estudos/Relatorio_horas_${message.from}_${message.timestamp}.xlsx`);
+
+        message.reply(media);
+
 
         return
     }
