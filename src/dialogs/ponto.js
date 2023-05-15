@@ -1,5 +1,8 @@
 const database = require('../Core/database/index.js')
 const template = require('./templates.js')
+const { MessageMedia, MessageAck } = require('whatsapp-web.js');
+const {enviaEmail} = require('../Core/Events/app.js');
+const { relatorio } = require('../dialogs/relatorio.js')
 
 
 class ponto {
@@ -27,8 +30,45 @@ class ponto {
 
             // ver as horas extras
             case 3: {
-                await database.table('pda_tb_interacao').update({ dialogo: 'verhoras' }).where({ numeroTelefone: message.from });
-                await message.reply('aperta uma tecla ai:')
+                //recebe relatório pelo whats
+                
+                const { default: { execute } } = require(`./relatorio`);
+                const nomeArquivo = await execute(message);
+                
+                const media = MessageMedia.fromFilePath(nomeArquivo.path);
+                console.log(media)
+//              
+
+                
+                await message.reply(media)
+                
+
+                break;
+            }
+            case 4:{
+                //enviar relatorio por e-mail
+                const { default: { execute } } = require(`./relatorio`);
+                const nomeArquivo = await execute(message);
+                
+                const sendmail = new enviaEmail()
+                
+                const head = await database('pda_tb_usuario').select('codigo_head').first().whereLike('numero',`%${message.from}%`)
+
+                let emailHead = await database('pda_tb_usuario').select('email').first().whereLike('usuario',`%${head}%`) || await database('pda_tb_usuario').select('email').first().whereLike('numero',`%${message.from}%`)
+
+
+
+                //envia e-mail pro HEAD da area
+
+                sendmail.enviaIsso('sbarbosa@pdasolucoes.com.br',emailHead,'assunto', nomeArquivo)
+
+                //sendmail.sendMail('sbarbosa@pdasolucoes.com.br','sbarbosa@pdasolucoes.com.br','assunto', nomeArquivo)
+
+                break;
+            }
+            case 5: {
+                //voltar
+                // update no banco
                 break;
             }
 

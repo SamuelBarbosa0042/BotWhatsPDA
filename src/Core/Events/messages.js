@@ -1,77 +1,102 @@
 const { client } = require('../wweb/Libwts');
 const database = require('../database')
-const template = require('../../dialogs/templates')
+const  template = require('../../dialogs/templates')
 const { relatorio } = require('../../dialogs/relatorio')
 const ExcelJS = require('exceljs');
-const { MessageMedia } = require('whatsapp-web.js');
+const { MessageMedia, MessageAck } = require('whatsapp-web.js');
+const {enviaEmail} = require('../Events/app');
+const {cadastro} = require('../../dialogs/cadastro')
+
 
 
 client.on('message', async (message) => {
 
     //client.sendMessage('5511982645275@c.us', "I'm alive");
     if (message.isGroupMsg) return;
-    const user = await database('pda_tb_usuario').select('*').where({
-        numero: message.from
-    })
-    
+    const user = await database('pda_tb_usuario')
+                        .select('*')
+                        .where({numero: message.from})
+
     if (!user.length) {
-        if (message.body == '/cadastrar') {
-            await database('pda_tb_usuario').insert({ usuario: message._data.notifyName, numero: message.from })
+        
+        
+        if(message.body == '/cadastrar' ){
+            
+            const cad = new cadastro
+            cad.criaConta(message)
+
             await client.sendMessage(message.from, 'Usuario cadastrado com sucesso')
             return
         }
+
         
         return
 
+    }
+
+    if(message.body == '/cadastrar'){
+        
+        const cad = new cadastro
+
+        cad.atualizaConta(message)
+
+        return message.reply('cadastro atualizado!')
+
+        
+    }
+    
+
+    if(message.body == '/help'){
+        
+        const { default: { execute } } = require(`../../dialogs/help`);
+        execute(message);
+
+        return 
     }
 
     if(message.body == '/relatorio'){
-        //await message.reply('criando relatório')
         
-        const remetente = message.from
+        const { default: { execute } } = require(`../../dialogs/relatorio`);
+        const nomeArquivo = await execute(message);
+        
+        const media = MessageMedia.fromFilePath(nomeArquivo.path);
+        console.log(media)
 
-        const workbook = new ExcelJS.Workbook();
 
-        let relatorio = await database('pda_tb_hora')
-                                .join('pda_tb_usuario','pda_tb_hora.numeroTelefone','=','pda_tb_usuario.numero')
-                                .select('pda_tb_usuario.usuario','chamado','quantidade_horas','comentario','data')
-                                .where({numeroTelefone:remetente})
-                                .orderBy('data','asc')
-                                  
-        const sheet = workbook.addWorksheet('relatorio');
-        sheet.columns = [
-            {header:'Data',key:'data',width:15},
-            {header:'Nome', key :'Nome',width:15},
-            {header:'chamado', key :'chamado',width:12},
-            {header:'horas', key :'horas',width:5},
-            {header:'comentario', key :'comentario',width:30}
-        ]
-        //console.log(relatorio.length)
-        for(let i = 0;i<relatorio.length;i++){
-            const row  = [
-                relatorio[i].data,
-                relatorio[i].usuario,
-                relatorio[i].chamado,
-                relatorio[i].quantidade_horas,
-                relatorio[i].comentario
-            ]
-            sheet.addRow(row)
-        }
+        message.reply(media)
+        return 
+    }
 
-        await workbook.xlsx.writeFile(`c:/Estudos/Relatorio_horas_${message.from}_${message.timestamp}.xlsx`)
 
-        const media = MessageMedia.fromFilePath(`c:/Estudos/Relatorio_horas_${message.from}_${message.timestamp}.xlsx`);
+    if(message.body == '/enviarelatorio'){
+        const { default: { execute } } = require(`../../dialogs/relatorio`);
+        const nomeArquivo = await execute(message); 
+        //message.reply(media)
+        console.log(nomeArquivo)
+        //console.log(await media)
+        //console.log(await media.filename)
+        const sendmail = new enviaEmail() 
 
-        message.reply(media);
-
+        sendmail.sendMail('sbarbosa@pdasolucoes.com.br','sbarbosa@pdasolucoes.com.br','assunto', nomeArquivo)
 
         return
     }
+
+
+
+    if(message.body == '/perfil'){
+        const perfil = await database('pda_tb_usuario').select('usuario','numero','email').where({numero:message.from})
+        
+        await message.reply(template.perfil(perfil))
+
+        return 
+    }
+
     const valida = await database('pda_tb_interacao').select('DataInicio','dialogo').first().where('numeroTelefone',message.from).orderBy('DataInicio','desc')
 
     const hoje = new Date()
 
-
+    console.log(valida)
     
     if(!valida){
         const menus = await database('pda_tb_menu').select('Codigo_Menu', 'Menu')
@@ -92,6 +117,8 @@ client.on('message', async (message) => {
     if(tomorrow < now){
         await database('pda_tb_interacao').where('numeroTelefone',message.from).delete()
         await client.sendMessage(message.from,'Sessão expirada, tente novamente!')
+
+        return
     }    
 
         

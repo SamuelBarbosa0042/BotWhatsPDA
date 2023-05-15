@@ -1,40 +1,52 @@
 const database = require('../Core/database/index.js')
 const { MessageMedia} = require('whatsapp-web.js')
-const exceljs = require('exceljs')
+const Exceljs = require('exceljs')
+const path = require('path')
 
 class relatorio
 {
     async execute(message) {
         const remetente = message.from
 
-        let relatorio = await database('pda_tb_hora').select('*').where({numeroTelefone:numero})
+        const workbook = new Exceljs.Workbook();
 
+        let relatorio = await database('pda_tb_hora')
+                                .join('pda_tb_usuario','pda_tb_hora.numeroTelefone','=','pda_tb_usuario.numero')
+                                .select('pda_tb_usuario.usuario','chamado','quantidade_horas','comentario','data')
+                                .where({numeroTelefone:remetente})
+                                .orderBy('data','asc')
+                                  
         const sheet = workbook.addWorksheet('relatorio');
         sheet.columns = [
-            {header:'numeroTelefone', key :'numeroTelefone',width:10},
-            {header:'chamado', key :'chamado',width:10},
-            {header:'horas', key :'horas',width:10},
-            {header:'comentario', key :'comentario',width:10}
+            {header:'Data',key:'data',width:15,bold:true},
+            {header:'Nome', key :'Nome',width:15,bold:true},
+            {header:'chamado', key :'chamado',width:12,bold:true},
+            {header:'horas', key :'horas',width:5,bold:true},
+            {header:'comentario', key :'comentario',width:30,bold:true}
         ]
-
+        
         for(let i = 0;i<relatorio.length;i++){
-            row = sheet.addRow = [
-                relatorio[i].numeroTelefone,
+            const row  = [
+                relatorio[i].data,
+                relatorio[i].usuario,
                 relatorio[i].chamado,
                 relatorio[i].quantidade_horas,
-                relatorio[i].Comentario
+                relatorio[i].comentario
             ]
+            sheet.addRow(row)
         }
-
-        const workbook = new ExcelJS.Workbook();
-
-        return workbook;        
         
-        message.sendMessage(message.from,relatorio)
+        const nomeArquivo = `Relatorio_horas_${message.timestamp}.xlsx`
+        await workbook.xlsx.writeFile(path.resolve(__dirname,'../../arquivos',nomeArquivo))
+
+
+        
+        
+        return {name:nomeArquivo,path:path.resolve(__dirname,'../../arquivos',nomeArquivo)}
+
 
     }
 
 }
+//module.exports = {relatorio}
 exports.default = new relatorio();
-// exports.geraRelatorio = new relatorio.geraRelatorio();
-//module.exports = { relatorio  }
