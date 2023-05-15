@@ -8,6 +8,19 @@ class template{
     static excluir(){
         return 'Informe qual hora você deseja excluir'
     }
+    static help(){
+
+    }
+    static perfil(perfil){
+        console.log('entra aqui')
+        return `${perfil.map(perfil => ` Usuario: *${perfil.usuario}*\n\nNumero *${perfil.numero}*\n\nE-mail : ${perfil.email}`)}`
+    }
+    static assunto(assunto){
+        return
+    }
+    static body(body){
+        return
+    }
 }
 
 

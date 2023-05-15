@@ -7,6 +7,8 @@ exports.up = function (knex) {
       table.increments('codigo_usuario');
       table.string('usuario');
       table.string('numero');
+      table.string('email');
+      table.string('Codigo_HEAD');
 
     });
   };
