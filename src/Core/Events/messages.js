@@ -5,7 +5,7 @@ const { relatorio } = require('../../dialogs/relatorio')
 const ExcelJS = require('exceljs');
 const { MessageMedia, MessageAck } = require('whatsapp-web.js');
 const {enviaEmail} = require('../Events/app');
-const {cadastro} = require('../../dialogs/cadastro')
+const {cadastro} = require('../../functions/cadastro')
 
 
 
@@ -22,26 +22,23 @@ client.on('message', async (message) => {
         
         if(message.body == '/cadastrar' ){
             
-            const cad = new cadastro
-            cad.criaConta(message)
-
-            await client.sendMessage(message.from, 'Usuario cadastrado com sucesso')
-            return
+            await database('pda_tb_interacao').insert({'numeroTelefone':message.from,'dialogo':'cadastro','DataInicio':new Date()})
+            
         }
 
-        
+
         return
 
     }
 
-    if(message.body == '/cadastrar'){
+    if(message.body == '/apagarcadastro'){ ///attcadastro email@email.com head
         
         const cad = new cadastro
 
-        cad.atualizaConta(message)
+        await database('pda_tb_usuario').delete().where({numero:message.from})
+        await database('pda_tb_interacao').delete().where({numeroTelefone:message.from})
 
-        return message.reply('cadastro atualizado!')
-
+        return
         
     }
     
@@ -94,14 +91,11 @@ client.on('message', async (message) => {
 
     const valida = await database('pda_tb_interacao').select('DataInicio','dialogo').first().where('numeroTelefone',message.from).orderBy('DataInicio','desc')
 
-    const hoje = new Date()
-
-    console.log(valida)
-    
     if(!valida){
         const menus = await database('pda_tb_menu').select('Codigo_Menu', 'Menu')
         await database('pda_tb_interacao').insert({'numeroTelefone':message.from,'dialogo':'welcome','DataInicio':new Date()})
         await message.reply(template.menu(menus))
+        console.log('novo dialogo')
         return
     }
 
@@ -120,8 +114,8 @@ client.on('message', async (message) => {
 
         return
     }    
-
-        
+    
+    console.log(valida.dialogo)
     const { default: { execute } } = require(`../../dialogs/${valida.dialogo}`);
     execute(message);
 
