@@ -23,7 +23,9 @@ class adicionarhora
                                                  ,quantidade_horas:extra[1]
                                                  ,chamado:extra[2]
                                                  ,data:extra[3]
-                                                 ,numeroTelefone:message.from}) //inserir: quantidade de horas//comentario//telefone//nome//data
+                                                 ,numeroTelefone:message.from
+                                                 ,checkHead:false
+                                                ,checkFinanceiro:false}) //inserir: quantidade de horas//comentario//telefone//nome//data
         }
 
 

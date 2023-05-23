@@ -5,7 +5,7 @@ const path = require('path')
 
 class relatorio
 {
-    async execute(message) {
+    async execute(message,head,financeiro) {
         const remetente = message.from
 
         const workbook = new Exceljs.Workbook();
@@ -13,9 +13,12 @@ class relatorio
         let relatorio = await database('pda_tb_hora')
                                 .join('pda_tb_usuario','pda_tb_hora.numeroTelefone','=','pda_tb_usuario.numero')
                                 .select('pda_tb_usuario.usuario','chamado','quantidade_horas','comentario','data')
-                                .where({numeroTelefone:remetente})
+                                .where({numeroTelefone:remetente}).andWhere({checkHead:head}).andWhere({checkFinanceiro:financeiro})
                                 .orderBy('data','asc')
-                                  
+
+                                
+        
+
         const sheet = workbook.addWorksheet('relatorio');
         sheet.columns = [
             {header:'Data',key:'data',width:15,bold:true},

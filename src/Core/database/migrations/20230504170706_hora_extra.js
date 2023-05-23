@@ -10,6 +10,8 @@ exports.up = function (knex) {
       table.string('comentario');
       table.string('chamado');
       table.string('numeroTelefone');
+      table.boolean('checkHead');
+      table.boolean('checkFinanceiro');
     });
   };
   

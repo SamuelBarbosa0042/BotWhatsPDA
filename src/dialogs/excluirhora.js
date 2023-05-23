@@ -11,8 +11,13 @@ class excluirhora
         }
         //excluir a hora desejada usando o ID
         let i = message.body
-        let excluir = database.table('pda_tb_hora').select('codigo_hora').where({codigo_hora : message.body, numeroTelefone : message.from})
-        if(excluir.length > 0){
+
+        let excluir = await database.table('pda_tb_hora').select('codigo_hora').where({codigo_hora : i, numeroTelefone : message.from})
+
+        
+        if(excluir[0].codigo_hora > 0){
+
+            console.log(excluir)
             
             await database.table('pda_tb_hora').where({codigo_hora : message.body, numeroTelefone : message.from}).delete()    // apaga a hora
             

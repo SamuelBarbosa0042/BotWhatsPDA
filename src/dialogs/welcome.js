@@ -1,4 +1,5 @@
 const database = require('../Core/database/index.js')
+const template = require('./templates.js')
 
 class Welcome
 {
@@ -9,7 +10,7 @@ class Welcome
             // Horas Extras
             case 1: {
                 await database.table('pda_tb_interacao').update({ dialogo: 'ponto' }).where({ numeroTelefone: message.from });
-                await message.reply('Selecione uma das opções:\n\n*1* - Cadastrar hora extra.\n*2* - excluir hora extra.\n*3* - ver horas extras\n*4* - Voltar ao menu anterior.\n*0* - Encerrar atendimento.');
+                await message.reply(template.welcome());
                     
                 break;
             }

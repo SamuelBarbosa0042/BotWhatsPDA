@@ -15,14 +15,14 @@ class enviaEmail{
           })
         };
 
-    async enviaIsso(remetente,destinatario,assunto,filename){
+    async enviaIsso(remetente,destinatario,assunto,filename,corpo){
         
         const mailOptions = {
             from: remetente,
             to: [destinatario],
             subject: assunto,
-            text: "Plaintext version of the message",
-            html:'<p>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaA</p>',
+            text: corpo,
+            html:corpo,
             attachments: [
                 {
                     filename : filename.name,

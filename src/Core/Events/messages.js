@@ -5,7 +5,7 @@ const { relatorio } = require('../../dialogs/relatorio')
 const ExcelJS = require('exceljs');
 const { MessageMedia, MessageAck } = require('whatsapp-web.js');
 const {enviaEmail} = require('../Events/app');
-const {cadastro} = require('../../functions/cadastro')
+
 
 
 
@@ -16,14 +16,22 @@ client.on('message', async (message) => {
     const user = await database('pda_tb_usuario')
                         .select('*')
                         .where({numero: message.from})
-
+    
     if (!user.length) {
         
         
         if(message.body == '/cadastrar' ){
+            const valida = await database('pda_tb_interacao').select('DataInicio','dialogo').first().where('numeroTelefone',message.from).orderBy('DataInicio','desc')
+            if(!valida){
+                await database('pda_tb_interacao').insert({'numeroTelefone':message.from,'dialogo':'cadastros','DataInicio':new Date()})
+               
+            }    
             
-            await database('pda_tb_interacao').insert({'numeroTelefone':message.from,'dialogo':'cadastro','DataInicio':new Date()})
+
+            const { default: { execute } } = require(`../../dialogs/cadastros`);
+            execute(message);
             
+            return
         }
 
 
@@ -68,14 +76,18 @@ client.on('message', async (message) => {
     if(message.body == '/enviarelatorio'){
         const { default: { execute } } = require(`../../dialogs/relatorio`);
         const nomeArquivo = await execute(message); 
-        //message.reply(media)
-        console.log(nomeArquivo)
-        //console.log(await media)
-        //console.log(await media.filename)
         const sendmail = new enviaEmail() 
+        const templates = new template()
+        let usuario = await database('pda_tb_usuario').select('*').where({numero:message.from})
+        let mes = await database('pda_tb_horas').select('*').where({numero:message.from})
 
-        sendmail.sendMail('sbarbosa@pdasolucoes.com.br','sbarbosa@pdasolucoes.com.br','assunto', nomeArquivo)
 
+
+        const assunto = templates.assunto(usuario.nome,'agosto' )
+
+
+        sendmail.sendMail('sbarbosa@pdasolucoes.com.br',usuario.emailHead,assunto, nomeArquivo)
+        
         return
     }
 
@@ -94,6 +106,7 @@ client.on('message', async (message) => {
     if(!valida){
         const menus = await database('pda_tb_menu').select('Codigo_Menu', 'Menu')
         await database('pda_tb_interacao').insert({'numeroTelefone':message.from,'dialogo':'welcome','DataInicio':new Date()})
+        console.log(menus)
         await message.reply(template.menu(menus))
         console.log('novo dialogo')
         return
@@ -114,8 +127,7 @@ client.on('message', async (message) => {
 
         return
     }    
-    
-    console.log(valida.dialogo)
+
     const { default: { execute } } = require(`../../dialogs/${valida.dialogo}`);
     execute(message);
 
